@@ -32,8 +32,11 @@ export default function HomePage() {
       <DiscoverySection discovery={discovery} />
     </PreviewSection>
     {selection.secondary.length >= 3 && <PreviewSection enabled preview={isPreview} name="featured-properties"><SecondaryProperties selection={selection} /></PreviewSection>}
-    <PreviewSection enabled={visible(agency, 'about') || visible(agency, 'services') || visible(agency, 'statistics')} preview={isPreview} name="about">
+    <PreviewSection enabled={visible(agency, 'about') || visible(agency, 'statistics')} preview={isPreview} name="about">
       <Credibility agency={agency} />
+    </PreviewSection>
+    <PreviewSection enabled={visible(agency, 'services')} preview={isPreview} name="services">
+      <Services items={agency.config.services} />
     </PreviewSection>
     <SupportingSections agency={agency} agents={agentsQuery.data || []} agentsLoading={agentsQuery.loading} preview={isPreview} />
   </main>
@@ -163,9 +166,14 @@ function DiscoverySection({ discovery }) {
 
 function Credibility({ agency }) {
   const config = agency.config
-  const proof = [...(config.statistics || []).slice(0, 3), ...(config.services || []).slice(0, 3).map((item) => ({ value: item.title, label: item.description }))].slice(0, 3)
+  const proof = (config.statistics || []).slice(0, 3)
   if (!config.about && !proof.length) return null
   return <section className="about-home"><div className="container credibility-layout"><div><p className="eyebrow">Your local property team</p><h2>{config.tagline || `Property guidance from ${agency.name}.`}</h2><p>{config.about}</p><Link className="text-link" to="/about">Learn more about us <ArrowRight size={16} /></Link></div>{proof.length > 0 && <div className="credibility-points">{proof.map((item, index) => <div key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label}</span>{item.helper && <small>{item.helper}</small>}</div>)}</div>}</div></section>
+}
+
+function Services({ items = [] }) {
+  if (!items.length) return null
+  return <section className="section section-standard service-section"><div className="container"><div className="section-heading"><div><p className="eyebrow">How we can help</p><h2>Real estate services built around your goals</h2><p>Explore the complete range of support available from our property team.</p></div></div><div className="service-grid">{items.map((item, index) => <article key={`${item.title}-${index}`}><span>{String(index + 1).padStart(2, '0')}</span><h3>{item.title}</h3><p>{item.description}</p></article>)}</div></div></section>
 }
 
 function AgentsSection({ agents, loading, preview }) {

@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Images, MapPin, Maximize2, Pause, Play, RotateCcw, Volume2, VolumeX, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Expand, Images, MapPin, Maximize2, Pause, Play, RotateCcw, Volume2, VolumeX, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 function SafeImage({ src, srcSet, alt, loading, className, width, height, sizes = '(min-width: 900px) 90vw, 100vw' }) {
@@ -13,11 +13,15 @@ export default function PropertyGallery({ property }) {
   const videos = property.videos || []
   const [active, setActive] = useState(0)
   const [open, setOpen] = useState(false)
+  const lightboxRef = useRef(null)
+  const closeRef = useRef(null)
+  const touchStart = useRef(null)
   useEffect(() => { setActive(0); setOpen(false) }, [property.id])
   useEffect(() => {
     if (!open) return undefined
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
     const keydown = (event) => {
       if (event.key === 'Escape') setOpen(false)
       if (event.key === 'ArrowLeft') setActive((value) => (value - 1 + images.length) % images.length)
@@ -28,6 +32,17 @@ export default function PropertyGallery({ property }) {
   }, [open, images.length])
   if (!images.length && !videos.length) return <div className="container detail-image-fallback">No property media available</div>
   const show = (index) => { setActive(index); setOpen(true) }
+  const previous = () => setActive((value) => (value - 1 + images.length) % images.length)
+  const next = () => setActive((value) => (value + 1) % images.length)
+  const startSwipe = (event) => { touchStart.current = event.touches[0]?.clientX ?? null }
+  const finishSwipe = (event) => {
+    if (touchStart.current === null) return
+    const distance = (event.changedTouches[0]?.clientX ?? touchStart.current) - touchStart.current
+    touchStart.current = null
+    if (Math.abs(distance) < 45 || images.length < 2) return
+    if (distance > 0) previous(); else next()
+  }
+  const enterFullscreen = () => lightboxRef.current?.requestFullscreen?.()
   return <>
     {images.length > 0 && <section className={`container property-gallery ${images.length === 1 ? 'property-gallery-single' : ''}`} aria-label={`${property.title} photos`}>
       <button className="gallery-primary" onClick={() => show(0)} aria-label="Open property photo 1"><SafeImage src={images[0].url} srcSet={images[0].srcSet} width={images[0].width} height={images[0].height} alt={images[0].alt_text || `${property.title} view 1`} /><span className="gallery-count"><Images />1 / {images.length}</span></button>
@@ -35,12 +50,13 @@ export default function PropertyGallery({ property }) {
       <button className="view-all-photos" onClick={() => show(0)}><Maximize2 />View all {images.length} {images.length === 1 ? 'photo' : 'photos'}</button>
     </section>}
     {videos.length > 0 && <PropertyReels property={property} videos={videos} />}
-    {open && <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={`${property.title} photo viewer`}>
-      <button className="gallery-close" onClick={() => setOpen(false)} aria-label="Close photo viewer"><X /></button>
-      {images.length > 1 && <button className="gallery-prev" onClick={() => setActive((value) => (value - 1 + images.length) % images.length)} aria-label="Previous photo"><ChevronLeft /></button>}
+    {open && <div ref={lightboxRef} className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={`${property.title} photo viewer`} onTouchStart={startSwipe} onTouchEnd={finishSwipe}>
+      <button ref={closeRef} className="gallery-close" onClick={() => setOpen(false)} aria-label="Close photo viewer"><X /></button>
+      <button className="gallery-fullscreen" onClick={enterFullscreen} aria-label="View photo gallery in full screen" data-tooltip="Full screen"><Expand /></button>
+      {images.length > 1 && <button className="gallery-prev" onClick={previous} aria-label="Previous photo"><ChevronLeft /></button>}
       <SafeImage src={images[active]?.originalUrl || images[active]?.url} srcSet={images[active]?.srcSet} width={images[active]?.original?.width || images[active]?.width} height={images[active]?.original?.height || images[active]?.height} alt={images[active]?.alt_text || `${property.title} view ${active + 1}`} />
-      {images.length > 1 && <button className="gallery-next" onClick={() => setActive((value) => (value + 1) % images.length)} aria-label="Next photo"><ChevronRight /></button>}
-      <p>{active + 1} / {images.length}</p>
+      {images.length > 1 && <button className="gallery-next" onClick={next} aria-label="Next photo"><ChevronRight /></button>}
+      <p className="gallery-status"><strong>{active + 1} / {images.length}</strong>{images[active]?.caption && <span>{images[active].caption}</span>}</p>
       {images.length > 1 && <div className="lightbox-thumbnails">{images.map((image, index) => <button key={image.id || index} className={index === active ? 'active' : ''} onClick={() => setActive(index)} aria-label={`Show photo ${index + 1}`}><SafeImage src={image.thumbnailUrl || image.url} alt="" loading="lazy" /></button>)}</div>}
     </div>}
   </>

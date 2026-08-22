@@ -49,6 +49,8 @@ export function normalizeProperty(raw, placeholder = '') {
     media,
     images,
     videos,
+    imageCount: Number(raw.image_count ?? images.length),
+    videoCount: Number(raw.video_count ?? videos.length),
     image: primary?.url || cardImage || absoluteMediaUrl(placeholder),
     imageWidth: primary?.width || raw.primary_image?.width || null,
     imageHeight: primary?.height || raw.primary_image?.height || null,

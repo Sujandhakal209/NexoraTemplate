@@ -2,7 +2,9 @@ import { apiRequest, publicPath } from '../api/client'
 import { normalizeAgency } from '../adapters/agencyAdapter'
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
-const RESERVED_SUBDOMAINS = new Set(['www', 'api', 'crm', 'template', 'app'])
+const RESERVED_SUBDOMAINS = new Set([
+  'admin', 'api', 'app', 'crm', 'mail', 'status', 'support', 'template', 'www',
+])
 
 export function tenantTargetFromLocation(location = window.location) {
   const hostname = location.hostname.toLowerCase().replace(/\.$/, '')

@@ -4,6 +4,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { isPageEnabled } from '../../adapters/agencyAdapter'
 
 const baseNavigation = [
+  ['home', 'Home', '/'],
   ['properties', 'Properties', '/properties'], ['properties', 'Buy', '/buy'], ['properties', 'Rent', '/rent'],
   ['agents', 'Agents', '/agents'], ['about', 'About', '/about'], ['contact', 'Contact', '/contact'],
 ]
@@ -11,9 +12,13 @@ const baseNavigation = [
 function configuredNavigation(agency) {
   const configured = agency.config.navigation || []
   if (!configured.length) return baseNavigation.filter(([page]) => isPageEnabled(agency, page))
-  return configured
+  const navigation = configured
     .filter((item) => item.page !== 'portal' && isPageEnabled(agency, item.page))
-    .map((item) => [item.page, item.label, item.url || `/${item.page === 'home' ? '' : item.page}`])
+    .map((item) => [item.page, item.label, item.page === 'home' ? '/' : (item.url || `/${item.page}`)])
+  if (isPageEnabled(agency, 'home') && !navigation.some(([page]) => page === 'home')) {
+    navigation.unshift(['home', 'Home', '/'])
+  }
+  return navigation
 }
 
 export default function Header({ agency }) {
@@ -28,7 +33,7 @@ export default function Header({ agency }) {
   }, [])
   const navigation = configuredNavigation(agency)
   const primaryNavigation = navigation.filter(([, , url]) => ['/properties', '/buy', '/rent'].includes(url))
-  const secondaryNavigation = navigation.filter(([, , url]) => !['/properties', '/buy', '/rent', '/'].includes(url))
+  const secondaryNavigation = navigation.filter(([, , url]) => !['/properties', '/buy', '/rent'].includes(url))
   const canList = isPageEnabled(agency, 'valuation')
   return <header data-preview-section="header" className={`site-header ${scrolled ? 'site-header-scrolled' : ''}`}>
     <div className="container header-inner">
@@ -37,8 +42,8 @@ export default function Header({ agency }) {
         <span>{agency.name}</span>
       </Link>
       <nav className="desktop-nav" aria-label="Main navigation">
-        <span className="primary-nav">{primaryNavigation.map(([page, label, url], index) => <NavLink key={`${page}-${url}-${index}`} to={url}>{label}</NavLink>)}</span>
-        <span className="secondary-nav">{secondaryNavigation.map(([page, label, url], index) => <NavLink key={`${page}-${url}-${index}`} to={url}>{label}</NavLink>)}</span>
+        <span className="primary-nav">{primaryNavigation.map(([page, label, url], index) => <NavLink key={`${page}-${url}-${index}`} to={url} end={url === '/'}>{label}</NavLink>)}</span>
+        <span className="secondary-nav">{secondaryNavigation.map(([page, label, url], index) => <NavLink key={`${page}-${url}-${index}`} to={url} end={url === '/'}>{label}</NavLink>)}</span>
       </nav>
       <div className="header-actions">
         {canList && <Link className="button button-outline header-cta" to="/list-your-property">List your property</Link>}
