@@ -33,5 +33,7 @@ function routeSeo(path, agency) {
   if (path === '/about') return { title: `About | ${name}`, description: agency.config.about || agency.config.seo_description }
   if (path === '/contact') return { title: `Contact | ${name}`, description: `Contact ${name} about buying, renting, or listing property.` }
   if (path === '/list-your-property') return { title: `List your property | ${name}`, description: `Request a property valuation or listing consultation from ${name}.` }
+  if (path === '/privacy-policy') return { title: `Privacy Policy | ${name}`, description: `Learn how ${name} handles information submitted through its public property website.` }
+  if (path === '/terms-of-service') return { title: `Terms of Service | ${name}`, description: `Read the terms that apply when using ${name}'s public property website.` }
   return {}
 }

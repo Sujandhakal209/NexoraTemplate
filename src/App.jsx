@@ -9,8 +9,10 @@ import ContactPage from './pages/ContactPage'
 import HomePage from './pages/HomePage'
 import ListPropertyPage from './pages/ListPropertyPage'
 import NotFoundPage from './pages/NotFoundPage'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import PropertiesPage from './pages/PropertiesPage'
 import PropertyDetailPage from './pages/PropertyDetailPage'
+import TermsOfServicePage from './pages/TermsOfServicePage'
 import UnavailablePage from './pages/UnavailablePage'
 
 function PageGate({ page, children }) {
@@ -39,6 +41,8 @@ export default function App() {
     <Route path="about" element={<PageGate page="about"><AboutPage /></PageGate>} />
     <Route path="contact" element={<PageGate page="contact"><ContactPage /></PageGate>} />
     <Route path="list-your-property" element={<PageGate page="valuation"><ListPropertyPage /></PageGate>} />
+    <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+    <Route path="terms-of-service" element={<TermsOfServicePage />} />
     <Route path="listings/:slug" element={<LegacyListingRedirect />} />
     <Route path="*" element={<NotFoundPage />} />
   </Route></Routes>

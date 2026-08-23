@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Send } from 'lucide-react'
 import { contactAgency } from '../../services/inquiryService'
 import { FieldError } from '../common/States'
+import PhoneInput from './PhoneInput'
 
 const initial = { full_name: '', phone: '', email: '', message: '' }
 
@@ -18,7 +19,7 @@ export default function ContactForm({ agency, compact = false }) {
   }
   if (state.status === 'success') return <div className="form-success" role="status"><h3>Thank you for getting in touch.</h3><p>The {agency.name} team has received your message and will contact you soon.</p><button className="text-link" onClick={() => setState({ status: 'idle', error: '' })}>Send another message</button></div>
   return <form className={`form-card ${compact ? 'form-card-compact' : ''}`} onSubmit={submit}>
-    <div className="form-grid"><label>Full name<input value={form.full_name} onChange={(e) => set('full_name', e.target.value)} required autoComplete="name" /></label><label>Phone number<input value={form.phone} onChange={(e) => set('phone', e.target.value)} required autoComplete="tel" /></label></div>
+    <div className="form-grid"><label>Full name<input value={form.full_name} onChange={(e) => set('full_name', e.target.value)} required autoComplete="name" /></label><PhoneInput value={form.phone} onChange={(value) => set('phone', value)} required /></div>
     <label>Email address <span>(optional)</span><input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" /></label>
     <label>How can we help?<textarea rows={compact ? 4 : 6} value={form.message} onChange={(e) => set('message', e.target.value)} placeholder="Tell us what you are looking for." /></label>
     <FieldError error={state.error} />

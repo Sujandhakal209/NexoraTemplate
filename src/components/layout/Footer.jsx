@@ -25,6 +25,13 @@ export default function Footer({ agency }) {
     </div>
     {(agency.media.partner_logos || []).length > 0 && <div className="container partner-strip">{agency.media.partner_logos.map((logo, index) => <img key={`${logo}-${index}`} src={logo} alt={`Partner ${index + 1}`} loading="lazy" />)}</div>}
     {config.legal_text && <div className="container footer-legal">{config.legal_text}</div>}
-    <div className="container footer-bottom"><span>{config.copyright_text || `© ${new Date().getFullYear()} ${agency.name}. All rights reserved.`}</span><span>Powered by Nexora Realty OS</span></div>
+    <div className="container footer-bottom">
+      <span>{config.copyright_text || `© ${new Date().getFullYear()} ${agency.name}. All rights reserved.`}</span>
+      <nav className="footer-policy-links" aria-label="Legal">
+        <Link to="/privacy-policy">Privacy Policy</Link>
+        <Link to="/terms-of-service">Terms of Service</Link>
+      </nav>
+      <span>Powered by Nexora Realty OS</span>
+    </div>
   </footer>
 }
